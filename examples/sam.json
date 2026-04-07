@@ -1,0 +1,58 @@
+{
+  "sam:version": "1.0",
+  "sam:identity": {
+    "domain": "shop.example.com",
+    "legalName": "Example Retail SAS",
+    "jurisdiction": "FR"
+  },
+  "sam:capabilities": [
+    { "action": "browse_catalog", "protocol": "rest", "endpoint": "/api/catalog" },
+    { "action": "get_quote",      "protocol": "rest", "endpoint": "/api/quote" },
+    { "action": "place_order",    "protocol": "rest", "endpoint": "/api/order" },
+    { "action": "track_order",    "protocol": "rest", "endpoint": "/api/order/{id}" }
+  ],
+  "sam:mandate": {
+    "grammarVersion": "0.1",
+    "autoExecute": true,
+    "maxAmount": {
+      "value": 500,
+      "currency": "EUR",
+      "inclusiveOfTaxes": true,
+      "inclusiveOfShipping": true
+    },
+    "maxPriceDrift": { "percent": 2, "reference": "quote" },
+    "allowedCategories": ["consumer.electronics", "consumer.books"],
+    "allowedRegions": ["FR", "BE", "LU"],
+    "validityWindow": {
+      "notBefore": "2026-04-07T00:00:00Z",
+      "notAfter":  "2026-05-07T00:00:00Z"
+    },
+    "agentClass": "retail"
+  },
+  "sam:agentAuth": {
+    "profile": "rfc9421",
+    "algorithm": "ed25519",
+    "requiredComponents": [
+      "@method",
+      "@target-uri",
+      "@authority",
+      "content-digest",
+      "sam-mandate-ref",
+      "sam-operator",
+      "sam-user-context",
+      "created"
+    ]
+  },
+  "sam:human": {
+    "channels": [
+      { "type": "email", "value": "agents@shop.example.com" },
+      { "type": "https", "value": "https://shop.example.com/agent-escalation" }
+    ]
+  },
+  "sam:signature": {
+    "algorithm": "ed25519",
+    "sessionKeyId": "shop.example.com/keys/2026-04",
+    "validUntil": "2026-04-14T00:00:00Z",
+    "value": "base64(...)"
+  }
+}

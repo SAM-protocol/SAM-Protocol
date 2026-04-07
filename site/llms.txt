@@ -1,0 +1,30 @@
+# SAM Protocol
+
+> SAM (Semantic Agent Model) is an open, minimal trust and mandate layer for agentic commerce. It lets AI agents discover, verify, and transact with merchants under bounded, cryptographically enforced authority — with mandatory human escalation paths.
+
+SAM is merchant-ready, agent-ready, and enforces bounded autonomy. It is built on five constitutional rules: austerity of primitives, local evaluation, no network call for mandate check, no-fail-open revocation, and mandatory human escalation.
+
+## Core documents
+
+- [White Paper v1.0](https://github.com/SAM-protocol/SAM-Protocol/blob/main/docs/SAM_Protocol_WhitePaper_v1_0_EN.pdf): Full rationale, design, and conformance levels (L0/L1/L2).
+- [Normative One-Pager](https://github.com/SAM-protocol/SAM-Protocol/blob/main/docs/SAM_Protocol_Normative_OnePager.pdf): The five constitutional rules, condensed.
+- [Technical Appendix](https://github.com/SAM-protocol/SAM-Protocol/blob/main/docs/SAM_Protocol_Technical_Appendix.pdf): Pilot-grade implementation guide with sam.json schema, RFC 9421 signing, mandate grammar v0.1.
+- [Example sam.json](https://github.com/SAM-protocol/SAM-Protocol/blob/main/examples/sam.json): Minimal L2-conformant merchant document.
+
+## Key concepts
+
+- **sam.json**: A signed document served at `/.well-known/sam.json` declaring merchant identity, capabilities, mandate grammar, agent authentication (RFC 9421 + ed25519), and human escalation channels.
+- **Mandate grammar v0.1**: Eight closed primitives, AND-only, stateless, evaluated locally by the agent. No network call.
+- **Conformance levels**: L0 (merchant-ready), L1 (agent-ready), L2 (bounded autonomy with mandate enforcement).
+- **Constitutional freshness**: `validUntil` TTL with no fail-open on revocation.
+
+## Repository
+
+- [GitHub: SAM-protocol/SAM-Protocol](https://github.com/SAM-protocol/SAM-Protocol)
+- License: Apache 2.0
+- Status: v1.0 draft, pilot-ready. Open issues tracked for canonicalization, amount normalization, operator trust, replay protection, and sam-user-context semantics.
+
+## Contact
+
+- Website: https://sam-protocol.org
+- Issues and discussions: https://github.com/SAM-protocol/SAM-Protocol/issues

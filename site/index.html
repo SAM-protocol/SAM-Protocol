@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAM Protocol — The Trust and Mandate Layer for Agentic Commerce</title>
+<meta name="description" content="Open standard that lets AI agents discover a merchant, verify its identity, understand the bounds of autonomous execution, and fall back gracefully to a human. Merchant-ready. Agent-ready. Bounded autonomy." />
+<meta name="keywords" content="SAM protocol, agentic commerce, AI agents, trust layer, mandate, RFC 9421, ed25519, open standard, MCP, autonomous agents" />
+<meta name="author" content="SAM Protocol Working Group" />
+
+<meta property="og:title" content="SAM Protocol — The Trust and Mandate Layer for Agentic Commerce" />
+<meta property="og:description" content="One file. One signature. One grammar. One fallback. Open standard for agentic commerce trust." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://sam-protocol.org" />
+<meta property="og:site_name" content="SAM Protocol" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="SAM Protocol" />
+<meta name="twitter:description" content="The Trust and Mandate Layer for Agentic Commerce. Open standard, draft-sam-protocol-01." />
+
+<link rel="canonical" href="https://sam-protocol.org" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --blue-900: #1F4E79;
+    --blue-600: #2E75B6;
+    --blue-50: #EAF2FA;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, system-ui, sans-serif; color: #1a1a1a; }
+  .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .text-blue-sam { color: var(--blue-900); }
+  .bg-blue-sam { background-color: var(--blue-900); }
+  .border-blue-sam { border-color: var(--blue-600); }
+  .bg-blue-sam-light { background-color: var(--blue-50); }
+  .text-blue-sam-light { color: var(--blue-600); }
+  .callout {
+    border-left: 4px solid var(--blue-600);
+    background: var(--blue-50);
+  }
+  .section-rule {
+    border-top: 1px solid #e5e5e5;
+  }
+  .hero-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.97), rgba(255,255,255,0.97)),
+      linear-gradient(#e5e7eb 1px, transparent 1px),
+      linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+    background-size: auto, 40px 40px, 40px 40px;
+  }
+  pre {
+    background: #0d1117;
+    color: #c9d1d9;
+    padding: 1.25rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+  pre code { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .code-key { color: #79c0ff; }
+  .code-string { color: #a5d6ff; }
+  .code-comment { color: #8b949e; }
+</style>
+<link rel="alternate" type="text/plain" title="LLMs documentation" href="/llms.txt">
+<link rel="alternate" type="application/json" title="SAM identity document" href="/.well-known/sam.json">
+<meta name="ai-content-declaration" content="human-authored, open-standard specification">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://sam-protocol.org/#org",
+      "name": "SAM Protocol",
+      "url": "https://sam-protocol.org",
+      "sameAs": ["https://github.com/SAM-protocol"],
+      "description": "Open, minimal trust and mandate layer for agentic commerce."
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "SAM Protocol — Semantic Agent Model",
+      "description": "Merchant-ready, agent-ready, bounded autonomy. A minimal trust and mandate layer for agentic commerce.",
+      "url": "https://sam-protocol.org",
+      "author": { "@id": "https://sam-protocol.org/#org" },
+      "publisher": { "@id": "https://sam-protocol.org/#org" },
+      "license": "https://www.apache.org/licenses/LICENSE-2.0",
+      "inLanguage": "en",
+      "keywords": "agentic commerce, AI agents, trust layer, mandate, RFC 9421, ed25519, sam.json, bounded autonomy"
+    }
+  ]
+}
+</script>
+</head>
+<body class="bg-white">
+
+<!-- Top bar -->
+<header class="border-b border-gray-200 sticky top-0 bg-white/90 backdrop-blur z-50">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-blue-sam rounded flex items-center justify-center text-white font-bold text-sm">SAM</div>
+      <div>
+        <div class="font-bold text-blue-sam">SAM Protocol</div>
+        <div class="text-xs text-gray-500 font-mono">draft-sam-protocol-01</div>
+      </div>
+    </div>
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-700">
+      <a href="#why" class="hover:text-blue-sam">Why</a>
+      <a href="#design" class="hover:text-blue-sam">Design</a>
+      <a href="#docs" class="hover:text-blue-sam">Documents</a>
+      <a href="#quickstart" class="hover:text-blue-sam">Quick start</a>
+      <a href="https://github.com/SAM-protocol/SAM-Protocol" class="hover:text-blue-sam">GitHub</a>
+    </nav>
+    <a href="https://github.com/SAM-protocol/SAM-Protocol" class="bg-blue-sam text-white px-4 py-2 rounded text-sm font-semibold hover:opacity-90">View on GitHub</a>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero-grid border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+    <div class="inline-block px-3 py-1 bg-blue-sam-light text-white text-xs font-bold tracking-wider uppercase rounded mb-6">
+      Open Standard &middot; Internet-Draft &middot; April 2026
+    </div>
+    <h1 class="text-5xl md:text-7xl font-extrabold text-blue-sam leading-tight tracking-tight">
+      SAM Protocol
+    </h1>
+    <p class="mt-4 text-2xl md:text-3xl text-blue-sam-light italic font-light">
+      The Trust and Mandate Layer for Agentic Commerce
+    </p>
+    <p class="mt-6 text-lg md:text-xl text-gray-700 max-w-3xl italic">
+      Merchant-ready. Agent-ready. Bounded autonomy.
+    </p>
+
+    <div class="mt-10 flex flex-wrap gap-4">
+      <a href="#docs" class="bg-blue-sam text-white px-6 py-3 rounded font-semibold hover:opacity-90">Read the white paper</a>
+      <a href="#quickstart" class="border-2 border-blue-sam text-blue-sam px-6 py-3 rounded font-semibold hover:bg-blue-sam hover:text-white transition">Quick start</a>
+      <a href="https://github.com/SAM-protocol/SAM-Protocol" class="border-2 border-gray-300 text-gray-700 px-6 py-3 rounded font-semibold hover:border-gray-500">GitHub &rarr;</a>
+    </div>
+
+    <div class="mt-12 callout p-6 max-w-3xl">
+      <p class="text-gray-800 leading-relaxed">
+        AI agents can already search, compare, configure, and buy. What they cannot yet do reliably is
+        <strong>discover a merchant in a standardized way, verify its identity, understand the limits of autonomous execution, and fall back gracefully to a human when autonomy is not enough.</strong>
+      </p>
+      <p class="mt-4 text-gray-700">
+        SAM is a free, open standard defined by a single <code class="font-mono bg-white px-1.5 py-0.5 rounded text-blue-sam">sam.json</code> file published at the merchant's well-known location. It does not compete with MCP, OpenAI Actions, A2A, or REST. It feeds them.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Why -->
+<section id="why" class="py-20 border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-sm font-bold text-blue-sam-light uppercase tracking-wider mb-2">Why SAM exists</div>
+    <h2 class="text-4xl font-bold text-blue-sam mb-8">One file. One signature. One grammar. One fallback.</h2>
+    <p class="text-lg text-gray-700 max-w-3xl leading-relaxed">
+      The web was designed for humans assisted by browsers. Agents operate differently. They must select an execution surface, interpret rules, arbitrate between offers, and sometimes commit to acts with real economic consequences. Without a shared standard, every merchant becomes a special case, and every agent must re-learn the same trust assumptions from scratch.
+    </p>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-8">
+      <div class="p-6 border border-gray-200 rounded">
+        <div class="text-blue-sam-light font-bold text-sm mb-2">DISCOVERY</div>
+        <h3 class="font-bold text-lg mb-2">A single well-known location</h3>
+        <p class="text-gray-700">Every SAM-conformant merchant publishes <code class="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-sm">https://&lt;domain&gt;/.well-known/sam.json</code>. One URL. No registry. No gatekeeper.</p>
+      </div>
+      <div class="p-6 border border-gray-200 rounded">
+        <div class="text-blue-sam-light font-bold text-sm mb-2">VERIFICATION</div>
+        <h3 class="font-bold text-lg mb-2">Cryptographic identity</h3>
+        <p class="text-gray-700">The document is signed with <span class="font-mono">ed25519</span>. Agent requests are signed per RFC 9421. PKI web is the floor; application-level signatures are the roof.</p>
+      </div>
+      <div class="p-6 border border-gray-200 rounded">
+        <div class="text-blue-sam-light font-bold text-sm mb-2">BOUNDED EXECUTION</div>
+        <h3 class="font-bold text-lg mb-2">Mandate grammar v0.1</h3>
+        <p class="text-gray-700">A closed grammar of eight primitives, AND-only, evaluated <strong>locally</strong> by the agent with no network call. Simple, auditable, portable.</p>
+      </div>
+      <div class="p-6 border border-gray-200 rounded">
+        <div class="text-blue-sam-light font-bold text-sm mb-2">HUMAN ESCALATION</div>
+        <h3 class="font-bold text-lg mb-2">Graceful fallback</h3>
+        <p class="text-gray-700">Every manifest declares at least one structured human-escalation channel. When the mandate forbids, when auth fails, when the manifest is stale — the agent escalates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Design -->
+<section id="design" class="py-20 bg-gray-50 border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-sm font-bold text-blue-sam-light uppercase tracking-wider mb-2">Locked design decisions</div>
+    <h2 class="text-4xl font-bold text-blue-sam mb-12">Five constitutional rules</h2>
+
+    <div class="grid md:grid-cols-5 gap-4">
+      <div class="bg-white p-6 rounded border-t-4 border-blue-sam">
+        <div class="text-5xl font-bold text-blue-sam opacity-20 mb-2">1</div>
+        <p class="font-bold text-gray-900">No autonomy without proof.</p>
+      </div>
+      <div class="bg-white p-6 rounded border-t-4 border-blue-sam">
+        <div class="text-5xl font-bold text-blue-sam opacity-20 mb-2">2</div>
+        <p class="font-bold text-gray-900">No proof without signature.</p>
+      </div>
+      <div class="bg-white p-6 rounded border-t-4 border-blue-sam">
+        <div class="text-5xl font-bold text-blue-sam opacity-20 mb-2">3</div>
+        <p class="font-bold text-gray-900">No execution without bounds.</p>
+      </div>
+      <div class="bg-white p-6 rounded border-t-4 border-blue-sam">
+        <div class="text-5xl font-bold text-blue-sam opacity-20 mb-2">4</div>
+        <p class="font-bold text-gray-900">No bounds without local enforcement.</p>
+      </div>
+      <div class="bg-white p-6 rounded border-t-4 border-blue-sam">
+        <div class="text-5xl font-bold text-blue-sam opacity-20 mb-2">5</div>
+        <p class="font-bold text-gray-900">No signature is valid forever — only within its declared freshness window.</p>
+      </div>
+    </div>
+
+    <div class="mt-16 grid md:grid-cols-2 gap-10">
+      <div>
+        <h3 class="font-bold text-xl mb-3 text-blue-sam">Agent authentication — locked</h3>
+        <p class="text-gray-700 mb-3">HTTP Message Signatures (<strong>RFC 9421</strong>) with <span class="font-mono">ed25519</span>. One profile. One algorithm. One covered-components set. Exceptions are documented profiles, not alternatives.</p>
+        <p class="text-sm text-gray-500 italic">Closes doors that other standards leave open.</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-xl mb-3 text-blue-sam">Mandate grammar — closed</h3>
+        <p class="text-gray-700 mb-3">Eight primitives: <span class="font-mono text-sm">autoExecute, maxAmount, maxPriceDrift, allowedCategories, deniedCategories, allowedRegions, validityWindow, agentClass</span>. AND-only. No OR. No conditional. No free fields.</p>
+        <p class="text-sm text-gray-500 italic">Versioned as a whole. Unknown version = refuse to act.</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-xl mb-3 text-blue-sam">Freshness — constitutional</h3>
+        <p class="text-gray-700 mb-3">Every signed manifest carries a <span class="font-mono">validUntil</span>. Agents MUST revalidate after TTL expiry. Revocation signals outrank cached validity.</p>
+        <p class="text-sm text-gray-500 italic">SAM never fails open.</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-xl mb-3 text-blue-sam">Conformance levels</h3>
+        <ul class="text-gray-700 space-y-2">
+          <li><strong class="font-mono text-blue-sam-light">L0</strong> — discovery &middot; <em>merchant-ready</em></li>
+          <li><strong class="font-mono text-blue-sam-light">L1</strong> — + identity, signature &middot; <em>agent-ready</em></li>
+          <li><strong class="font-mono text-blue-sam-light">L2</strong> — + mandate, agent auth &middot; <em>bounded autonomy</em></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Documents -->
+<section id="docs" class="py-20 border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-sm font-bold text-blue-sam-light uppercase tracking-wider mb-2">Read the spec</div>
+    <h2 class="text-4xl font-bold text-blue-sam mb-12">Three documents. That's it.</h2>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <a href="https://github.com/SAM-protocol/SAM-Protocol/blob/main/docs/SAM_Protocol_WhitePaper_v1_0_EN.pdf" class="block p-8 border-2 border-gray-200 rounded hover:border-blue-sam transition group">
+        <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">01 &middot; The why</div>
+        <h3 class="text-2xl font-bold text-blue-sam mb-3 group-hover:underline">White Paper v1.0</h3>
+        <p class="text-gray-700 mb-4">The design, the trade-offs, the strategic positioning. 14 sections + appendix.</p>
+        <div class="text-sm text-blue-sam-light font-semibold">PDF &middot; DOCX &middot; Markdown &rarr;</div>
+      </a>
+      <a href="https://github.com/SAM-protocol/SAM-Protocol/blob/main/docs/SAM_Protocol_Normative_OnePager.pdf" class="block p-8 border-2 border-gray-200 rounded hover:border-blue-sam transition group">
+        <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">02 &middot; The what</div>
+        <h3 class="text-2xl font-bold text-blue-sam mb-3 group-hover:underline">Normative One-Pager</h3>
+        <p class="text-gray-700 mb-4">MUST / SHOULD / MAY. Eight sections. The minimum an implementer needs to be SAM-conformant.</p>
+        <div class="text-sm text-blue-sam-light font-semibold">PDF &middot; DOCX &rarr;</div>
+      </a>
+      <a href="https://github.com/SAM-protocol/SAM-Protocol/blob/main/docs/SAM_Protocol_Technical_Appendix.pdf" class="block p-8 border-2 border-gray-200 rounded hover:border-blue-sam transition group">
+        <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">03 &middot; The how</div>
+        <h3 class="text-2xl font-bold text-blue-sam mb-3 group-hover:underline">Technical Appendix</h3>
+        <p class="text-gray-700 mb-4">Just enough code to start a pilot in an afternoon. Python snippets for signing, verifying, and evaluating.</p>
+        <div class="text-sm text-blue-sam-light font-semibold">PDF &middot; DOCX &rarr;</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Quick start -->
+<section id="quickstart" class="py-20 bg-gray-50 border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-sm font-bold text-blue-sam-light uppercase tracking-wider mb-2">Quick start</div>
+    <h2 class="text-4xl font-bold text-blue-sam mb-8">A minimal <span class="font-mono">sam.json</span></h2>
+    <p class="text-lg text-gray-700 mb-8 max-w-3xl">
+      Publish this file (signed) at <code class="font-mono text-blue-sam bg-white px-2 py-1 rounded border">https://your-domain/.well-known/sam.json</code> and you are Level 2 SAM-conformant. An agent can now discover you, verify you, and act within your declared mandate.
+    </p>
+
+<pre><code>{
+  <span class="code-key">"sam:version"</span>: <span class="code-string">"1.0"</span>,
+  <span class="code-key">"sam:identity"</span>: {
+    <span class="code-key">"domain"</span>: <span class="code-string">"shop.example.com"</span>,
+    <span class="code-key">"legalName"</span>: <span class="code-string">"Example Retail SAS"</span>,
+    <span class="code-key">"jurisdiction"</span>: <span class="code-string">"FR"</span>
+  },
+  <span class="code-key">"sam:mandate"</span>: {
+    <span class="code-key">"grammarVersion"</span>: <span class="code-string">"0.1"</span>,
+    <span class="code-key">"autoExecute"</span>: <span class="code-string">true</span>,
+    <span class="code-key">"maxAmount"</span>: {
+      <span class="code-key">"value"</span>: <span class="code-string">500</span>,
+      <span class="code-key">"currency"</span>: <span class="code-string">"EUR"</span>,
+      <span class="code-key">"inclusiveOfTaxes"</span>: <span class="code-string">true</span>,
+      <span class="code-key">"inclusiveOfShipping"</span>: <span class="code-string">true</span>
+    },
+    <span class="code-key">"maxPriceDrift"</span>: { <span class="code-key">"percent"</span>: <span class="code-string">2</span>, <span class="code-key">"reference"</span>: <span class="code-string">"quote"</span> },
+    <span class="code-key">"allowedRegions"</span>: [<span class="code-string">"FR"</span>, <span class="code-string">"BE"</span>, <span class="code-string">"LU"</span>],
+    <span class="code-key">"validityWindow"</span>: {
+      <span class="code-key">"notBefore"</span>: <span class="code-string">"2026-04-07T00:00:00Z"</span>,
+      <span class="code-key">"notAfter"</span>:  <span class="code-string">"2026-05-07T00:00:00Z"</span>
+    }
+  },
+  <span class="code-key">"sam:agentAuth"</span>: {
+    <span class="code-key">"profile"</span>: <span class="code-string">"rfc9421"</span>,
+    <span class="code-key">"algorithm"</span>: <span class="code-string">"ed25519"</span>
+  },
+  <span class="code-key">"sam:human"</span>: {
+    <span class="code-key">"channels"</span>: [
+      { <span class="code-key">"type"</span>: <span class="code-string">"email"</span>, <span class="code-key">"value"</span>: <span class="code-string">"agents@shop.example.com"</span> }
+    ]
+  },
+  <span class="code-key">"sam:signature"</span>: {
+    <span class="code-key">"algorithm"</span>: <span class="code-string">"ed25519"</span>,
+    <span class="code-key">"validUntil"</span>: <span class="code-string">"2026-04-14T00:00:00Z"</span>,
+    <span class="code-key">"value"</span>: <span class="code-string">"base64(...)"</span>
+  }
+}</code></pre>
+
+    <div class="mt-10 grid md:grid-cols-2 gap-6">
+      <div class="p-6 bg-white border border-gray-200 rounded">
+        <div class="text-sm font-bold text-blue-sam-light uppercase mb-2">For merchants</div>
+        <ol class="text-gray-700 space-y-1 list-decimal list-inside">
+          <li>Copy the example above</li>
+          <li>Sign with an <span class="font-mono text-sm">ed25519</span> key</li>
+          <li>Publish at your <span class="font-mono text-sm">.well-known</span> path</li>
+          <li>Declare your conformance level</li>
+        </ol>
+      </div>
+      <div class="p-6 bg-white border border-gray-200 rounded">
+        <div class="text-sm font-bold text-blue-sam-light uppercase mb-2">For agent builders</div>
+        <ol class="text-gray-700 space-y-1 list-decimal list-inside">
+          <li>Fetch and verify the manifest</li>
+          <li>Evaluate the mandate locally (~35 lines)</li>
+          <li>Sign outgoing requests per RFC 9421</li>
+          <li>Escalate via <span class="font-mono text-sm">sam:human</span> when bounds fail</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Status -->
+<section class="py-20 border-b border-gray-200">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="text-sm font-bold text-blue-sam-light uppercase tracking-wider mb-2">Status</div>
+    <h2 class="text-4xl font-bold text-blue-sam mb-6">Draft. Stable. Pilotable.</h2>
+    <p class="text-lg text-gray-700 leading-relaxed">
+      SAM Protocol v1.0 (<span class="font-mono">draft-sam-protocol-01</span>) is a draft specification. The text is stable but not yet final. Implementors are encouraged to run pilots and provide feedback. The core decisions — RFC 9421 with ed25519, the eight-primitive mandate grammar, the constitutional freshness rule — are locked. The five known open issues (canonicalization, amount normalization, operator trust model, replay protection, user-context semantics) are tracked in section F of the Technical Appendix and will be closed before v1.0 is declared stable.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-4">
+      <a href="https://github.com/SAM-protocol/SAM-Protocol/issues" class="border-2 border-blue-sam text-blue-sam px-5 py-2.5 rounded font-semibold hover:bg-blue-sam hover:text-white transition">Open an issue</a>
+      <a href="https://github.com/SAM-protocol/SAM-Protocol/discussions" class="border-2 border-gray-300 text-gray-700 px-5 py-2.5 rounded font-semibold hover:border-gray-500">Join the discussion</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-blue-sam text-white py-12">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid md:grid-cols-3 gap-8">
+      <div>
+        <div class="font-bold text-xl mb-2">SAM Protocol</div>
+        <div class="text-sm text-blue-100 font-mono">draft-sam-protocol-01</div>
+        <div class="text-sm text-blue-100 mt-2">The Trust and Mandate Layer for Agentic Commerce</div>
+      </div>
+      <div>
+        <div class="font-bold text-sm uppercase tracking-wider mb-3">Resources</div>
+        <ul class="space-y-1.5 text-blue-100">
+          <li><a href="https://github.com/SAM-protocol/SAM-Protocol" class="hover:text-white">GitHub repository</a></li>
+          <li><a href="#docs" class="hover:text-white">Documents</a></li>
+          <li><a href="https://github.com/SAM-protocol/SAM-Protocol/blob/main/examples/sam.json" class="hover:text-white">Example sam.json</a></li>
+          <li><a href="https://github.com/SAM-protocol/SAM-Protocol/blob/main/CONTRIBUTING.md" class="hover:text-white">Contributing</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-bold text-sm uppercase tracking-wider mb-3">License</div>
+        <p class="text-blue-100 text-sm">Released under Apache License 2.0. Free to use, implement, extend, and commercialize. No royalties. No gatekeeper.</p>
+      </div>
+    </div>
+    <div class="mt-10 pt-6 border-t border-blue-400 text-sm text-blue-100 flex flex-wrap gap-4 justify-between">
+      <div>&copy; 2026 SAM Protocol Working Group</div>
+      <div class="italic">Merchant-ready. Agent-ready. Bounded autonomy.</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
